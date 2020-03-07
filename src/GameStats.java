@@ -58,7 +58,7 @@ public class GameStats {
         if(this.players.containsKey(uName)) // If there is a key with the same username, the existing player is returned.
         {
             u = this.players.get(uName);
-            System.out.print(" - User exists");
+            System.out.print(" - User loaded");
         }
         else
         {

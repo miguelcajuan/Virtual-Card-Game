@@ -5,13 +5,7 @@ import java.util.ArrayList;
  * The CardList class maintins a list fo Card objects with fuctionalities to move and inspect Cards for the list.
 
  */
-public class CardList {
-
-    public ArrayList<Card> cardList;
-
-    public CardList() {
-        cardList = new ArrayList();
-    }
+public class CardList extends ArrayList<Card>{
 
     /**
      * The moveCard() method moves a Card object from its CardList to another.
@@ -20,8 +14,8 @@ public class CardList {
      * @param list is the CardList that the card will be added into.
      */
     public void moveCard(Card card, CardList list) {
-        this.cardList.remove(card);
-        list.cardList.add(card);
+        this.remove(card);
+        list.add(card);
     }
 
     /**
@@ -41,8 +35,8 @@ public class CardList {
      **/
     public boolean hasCard(String kind) {
         boolean desiredC = false;
-        for (int i = 0; i < cardList.size() - 1; i++) {
-            if (cardList.get(i).getKind().equals(kind)) {
+        for (int i = 0; i < size() - 1; i++) {
+            if (get(i).getKind().equals(kind)) {
                 desiredC = true;
             }
         }

@@ -75,7 +75,7 @@ public class Player {
      * @param card is the given card that is to be added.
      */
     public void addHand(Card card) {
-        this.hand.cardList.add(card);
+        this.hand.add(card);
     }
 
     /**
@@ -86,7 +86,7 @@ public class Player {
      * @param pile is the ArrayList where the card will be added.
      */
     public void placeCard(Card card, ArrayList<Card> pile) {
-        hand.cardList.remove(card);
+        hand.remove(card);
         pile.add(card);
     }
 
@@ -101,7 +101,7 @@ public class Player {
     public void pickUpCard(ArrayList<Card> deck, int count) {
         for (int i = 0; i < count; i++) {
             Card top = deck.get(deck.size() - 1);
-            hand.cardList.add(deck.remove(deck.size() - 1));
+            hand.add(deck.remove(deck.size() - 1));
         }
     }
     
@@ -110,8 +110,8 @@ public class Player {
      */
     public void displayHand() {
         System.out.println(getName() + "'s cards");
-        for (int i = 0; i < hand.cardList.size(); i++) {
-            System.out.println("[" + (i + 1) + "] = " + hand.cardList.get(i).toString());
+        for (int i = 0; i < hand.size(); i++) {
+            System.out.println("[" + (i + 1) + "] = " + hand.get(i).toString());
         }
     }
 }

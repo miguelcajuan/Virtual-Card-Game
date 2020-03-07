@@ -1,4 +1,5 @@
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.InputMismatchException;
@@ -49,10 +50,10 @@ public class Game {
      * @param deck is a CardList type where the distributed cards comes from
      */
     public static void distribute(ArrayList<Player> players, CardList deck) {
-        int top = deck.cardList.size() - 1;
+        int top = deck.size() - 1;
         for (int i = 0; i < 7; i++) { //7 indicates the number of cards each player gets at the start of the game
             for (Player player : players) {
-                deck.moveCard(deck.cardList.get(0), player.getHand());
+                deck.moveCard(deck.get(0), player.getHand());
             }
         }
     }
@@ -73,18 +74,18 @@ public class Game {
                 + "4: exit = end the game.\n");
         deck = new CardList(); //creating the deck
         pile = new CardList(); //creating the pile
-        generateCards(deck.cardList);
+        generateCards(deck);
         gm = new GameStats(); //getting the game data (i.e. player's name, wins and loses)
         ArrayList<Player> pl = generatePlayers(gm);
         distribute(pl, deck);
-        deck.moveCard(deck.cardList.get(deck.cardList.size() - 1), pile);
+        deck.moveCard(deck.get(deck.size() - 1), pile);
         while (gameInProgress) {
 
             players.get(currentP).turnActive = true; // initiate first player turn
 
             while (players.get(currentP).turnActive) {//loops player input until they finish their turn
                 processInput(players.get(currentP));
-                if (players.get(currentP).getHand().cardList.isEmpty()) // Checks if player has no more cards
+                if (players.get(currentP).getHand().isEmpty()) // Checks if player has no more cards
                 {
                     players.get(currentP).setWinner(true);
                 }
@@ -143,20 +144,20 @@ public class Game {
         String str;
         do {
             do {
-                System.out.print("How many players (must be between 1 - 4): ");
+                System.out.print("How many players are participating (must be between 2 - 4):");
                 str = input.nextLine();
                 try {
                     playerSize = Integer.parseInt(str); //checks whether the input can be converted into an integer
                     valid = true; //input is a number
                 } catch (InputMismatchException e) {
-                    System.out.println("Invalid input, Please enter a number (must be between 1 - 4): " + e);
+                    System.out.println("Invalid input, Please enter a number (must be between 2 - 4): " + e);
                     valid = false; //input is not a number
                 } catch (NumberFormatException ee) {
-                    System.out.println("Invalid input, Please enter a number (must be between 1 - 4): " + ee);
+                    System.out.println("Invalid input, Please enter a number (must be between 2 - 4): " + ee);
                     valid = false; //input is not a number
                 }
             } while (!valid);
-        } while (!(playerSize <= 4) || !(playerSize > 0)); //checks if input is range (1 <= playerSize <= 4)
+        } while (!(playerSize <= 4) || !(playerSize > 1)); //checks if input is range (1 <= playerSize <= 4)
 
         players = new ArrayList<>();
         int playerC = 1;
@@ -179,15 +180,15 @@ public class Game {
      * their turn
      */
     private boolean pickUp(int player, int count) {
-        if (deck.cardList.isEmpty() && pile.cardList.size() > 0 || deck.cardList.size() < count) { //checks if the deck is insufficent for the number of cards to be picked up
+        if (deck.isEmpty() && pile.size() > 0 || deck.size() < count) { //checks if the deck is insufficent for the number of cards to be picked up
             System.out.println("Deck has ran out of cards, game will pickup cards from pile and add to deck");
-            Card top = pile.cardList.remove(pile.cardList.size() - 1);
-            deck.cardList.addAll(pile.cardList.subList(0, pile.cardList.size())); //gets all cards from pile except the face card located at the top
-            pile.cardList.clear();
-            pile.cardList.add(top);
-            Collections.shuffle(deck.cardList); //shuffle the order the cards are in
+            Card top = pile.remove(pile.size() - 1);
+            deck.addAll(pile.subList(0, pile.size())); //gets all cards from pile except the face card located at the top
+            pile.clear();
+            pile.add(top);
+            Collections.shuffle(deck); //shuffle the order the cards are in
         }
-        players.get(player).pickUpCard(deck.cardList, count);
+        players.get(player).pickUpCard(deck, count);
 
         return true;
     }
@@ -237,7 +238,7 @@ public class Game {
 
             } while ((!isNumber(sc))); //checking if input is an integer value
 //            try {
-                card = player.getHand().cardList.get(pos - 1);
+                card = player.getHand().get(pos - 1);
 //                valid = true;
 //            } catch (ArrayIndexOutOfBoundsException eee) { //catch possible exceptions
 //                System.out.println("Invalid input, Please enter a number: " + eee);
@@ -248,10 +249,10 @@ public class Game {
 //            }
 //        } while (!valid);
         
-        Card face = pile.cardList.get(pile.cardList.size() - 1);
+        Card face = pile.get(pile.size() - 1);
         if (matchCard(face, card)) { //checks if cards match
             if (ifTemp()) { //helper method for the aceEffect method
-                pile.cardList.remove(pile.cardList.size() - 1); //will remove the temporary card from the pile
+                pile.remove(pile.size() - 1); //will remove the temporary card from the pile
             }
             player.getHand().moveCard(card, pile);
             System.out.println(player.getName() + " placed " + card.toString());
@@ -299,22 +300,22 @@ public class Game {
             case "Clubs":
             case "clubs":
                 temp = new Card(null, "Clubs", 0); //temporary cards only have kinds
-                pile.cardList.add(temp);
+                pile.add(temp);
                 break;
             case "Hearts":
             case "hearts":
                 temp = new Card(null, "Hearts", 0);
-                pile.cardList.add(temp);
+                pile.add(temp);
                 break;
             case "Diamonds":
             case "diamonds":
                 temp = new Card(null, "Diamonds", 0);
-                pile.cardList.add(temp);
+                pile.add(temp);
                 break;
             case "Spades":
             case "spades":
                 temp = new Card(null, "Spades", 0);
-                pile.cardList.add(temp);
+                pile.add(temp);
                 break;
         }
 
@@ -345,7 +346,7 @@ public class Game {
      */
     private boolean ifTemp() {
         boolean condition = false;
-        Card top = pile.cardList.get(pile.cardList.size() - 1);
+        Card top = pile.get(pile.size() - 1);
         if (top.getKind() == null && top.getRank() == 0) {
             condition = true;
         }
@@ -406,14 +407,14 @@ public class Game {
         ArrayList<Card> tempCards; //instantiate a temporary card array
         for (int i = 0; i < players.size() - 1; i++) {
             tempPlayer = players.get(i); //sets a temporary player to check cards
-            tempCards = tempPlayer.getHand().cardList; //adding all of the cards from ith player to a temporary Card array
+            tempCards = tempPlayer.getHand(); //adding all of the cards from ith player to a temporary Card array
             if (!lastCardStatus.contains(tempPlayer.getName())) { //checks if the player is in last card status
 
                 if (tempCards.size() == 1) { //checks if player holds one card
                     lastCardStatus.add(players.get(i).getName()); //indicates ith player is in last card status
-                } else if (players.get(i).getHand().cardList.size() > 1) { //checks if player holds many cards of the same kind
+                } else if (players.get(i).getHand().size() > 1) { //checks if player holds many cards of the same kind
                     int check = 0;
-                    Card temp = players.get(i).getHand().cardList.get(0);
+                    Card temp = players.get(i).getHand().get(0);
                     for (int j = 1; j < tempCards.size() - 1; j++) {
                         if (tempCards.get(i).getKind().equals(temp.getKind())) {
                             check++;
@@ -426,9 +427,9 @@ public class Game {
                     lastCardStatus.remove(tempPlayer.getName()); //if a player is not in last card status then they will be removed from last card status
                 }
             } else if (lastCardStatus.contains(tempPlayer.getName())) { //checking if exisitng players in last card status list are still in last cards status
-                if (players.get(i).getHand().cardList.size() > 1) {
+                if (players.get(i).getHand().size() > 1) {
                     int check = 0;
-                    Card temp = players.get(i).getHand().cardList.get(0);
+                    Card temp = players.get(i).getHand().get(0);
                     for (int j = 1; j < tempCards.size() - 1; j++) {
                         if (tempCards.get(i).getKind().equals(temp.getKind())) {
                             check++;
@@ -460,16 +461,23 @@ public class Game {
      */
     private void processInput(Player player) {
         System.out.println("******************************************");
-        if (pile.cardList.get(pile.cardList.size() - 1).getRank() == 0) {
-            Card temp = pile.cardList.get(pile.cardList.size() - 1); //NANNNNI
+        if (pile.get(pile.size() - 1).getRank() == 0) {
+            Card temp = pile.get(pile.size() - 1); //NANNNNI
             System.out.println("Top card on pile: Any " + temp);
         } else {
 
-            System.out.println("Top card on pile : " + pile.cardList.get(pile.cardList.size() - 1));
+            System.out.println("Top card on pile : " + pile.get(pile.size() - 1));
         }
         System.out.println("******************************************");
         System.out.println(player.getName() + "'s Turn");// win loss ratio?
         System.out.println("******************************************");
+        System.out.println("Press Enter to reveal your cards."); // Privacy when passing the computer around the group
+        try{
+            System.in.read();
+        }
+        catch(IOException e){
+            
+        }
         player.displayHand();
         System.out.println();
         System.out.println("Type one of the commands: pickup, place, declare, inspect, help, exit");
@@ -529,7 +537,7 @@ public class Game {
 
             } while ((!isNumber(sc)));
             try {
-                card = player.getHand().cardList.get(pos - 1);
+                card = player.getHand().get(pos - 1);
                 valid = true;
             } catch (ArrayIndexOutOfBoundsException eee) {
                 System.out.println("Invalid input, Please enter a number: " + eee);
