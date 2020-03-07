@@ -1,0 +1,15 @@
+luis 1 19
+jose 0 1
+renzo 1 2
+miguel 21 24
+carmela 0 2
+sean 0 48
+yas 1 4
+connor 0 1
+julian 1 0
+marc 3 25
+carl 1 2
+Sean 1 0
+patrick 13 56
+dylan 0 2
+lois 0 2
